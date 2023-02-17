@@ -16,9 +16,24 @@ const months = [
   ];
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+const STORYBLOK_URL = 'https://api.storyblok.com/v2/cdn/stories?starts_with=events&token=ypHAQLevXIjj7kAb2XHCjwtt';
+let events;
 const today = new Date();
 let currentMonth = today.getMonth();
 let currentYear = today.getFullYear();
+
+const loadEvents = async () => {
+    const response = await fetch(STORYBLOK_URL);
+    const {stories} = await response.json();
+         events = stories.reduce((accumulator, event) => {
+            const eventTime = new Date(event.content.time);
+            const eventDate = new Date(eventTime.toDateString()); 
+            accumulator[eventDate] = event.content;
+            return accumulator;
+    }, {});
+};
+
+loadEvents();
 
 const drawBlankCalendar = () => {
     for (let i = 0; i < 35; i++) {
@@ -60,7 +75,19 @@ const updateCalendar = (month, year, events) => {
         const day = dayElements[i];
 
         const dayNumber = day.querySelector('.day-number');
-        if (i >= theFirstDayOfWeek  && dayCounter <= daysInMonth) {
+        if (i >= theFirstDayOfWeek  && dayCounter <= daysInMonth){
+            const thisDate = new Date(year, month , dayCounter);
+            
+            const eventName = day.querySelector('.event-name');
+            if(events[thisDate]){
+                const event = events[thisDate];
+                eventName.innerText = event.title;
+            }
+            else{
+                events.innerText = '';
+            }
+
+            console.log(thisDate);
             dayNumber.innerText = dayCounter;
             dayCounter++;
         }
@@ -71,7 +98,28 @@ const updateCalendar = (month, year, events) => {
     }
 };
 
+const previousMonth = () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    updateCalendar(currentMonth, currentYear, events)
+};
 
+const nextMonth = () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    updateCalendar(currentMonth, currentYear, events);
+};
 
-drawBlankCalendar()
-updateCalendar(currentMonth, currentYear)
+const load = async () => {
+await loadEvents();
+drawBlankCalendar();
+updateCalendar(currentMonth, currentYear, events);
+}
+
+load();

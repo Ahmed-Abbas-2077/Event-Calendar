@@ -10,6 +10,26 @@ body{
     background-color: #312e81 ;
 }
 
+.header{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 400px;
+    justify-content: space-between;
+}
+
+button.navigation{
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 250ms;
+}
+
+button.navigation:hover{
+    transform: scale(1.1);
+}
+
 .container{
     padding: 40px;
     margin: 0 auto;
